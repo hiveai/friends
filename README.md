@@ -1,7 +1,7 @@
 # Friends
 
 **TODO: Add description**
-
+This is an example based on Elixir School: https://elixirschool.com/en/lessons/ecto/associations/
 ## Installation
 
 If [available in Hex](https://hex.pm/docs/publish), the package can be installed
