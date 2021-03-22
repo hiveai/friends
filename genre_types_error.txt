@@ -1,0 +1,63 @@
+iex(1)> alias Friends.{Movie, Character, Actor, Repo, Genre_Type}
+[Friends.Movie, Friends.Character, Friends.Actor, Friends.Repo,
+ Friends.Genre_Type]
+iex(2)> movie = Repo.get(Movie, 1) 
+
+07:43:25.168 [debug] QUERY OK source="movies" db=0.3ms decode=0.4ms queue=0.5ms idle=1867.3ms
+SELECT m0."id", m0."title", m0."tagline" FROM "movies" AS m0 WHERE (m0."id" = $1) [1]
+%Friends.Movie{
+  __meta__: #Ecto.Schema.Metadata<:loaded, "movies">,
+  actors: #Ecto.Association.NotLoaded<association :actors is not loaded>,
+  characters: #Ecto.Association.NotLoaded<association :characters is not loaded>,
+  distributor: #Ecto.Association.NotLoaded<association :distributor is not loaded>,
+  genre_types: #Ecto.Association.NotLoaded<association :genre_types is not loaded>,
+  id: 1,
+  tagline: "Something about video games",
+  title: "Ready Player One"
+}
+iex(3)> movie = Repo.preload(movie, [:distributor, :characters, :actors, :genre_types])
+
+07:43:39.960 [debug] QUERY OK source="distributors" db=0.3ms queue=0.6ms idle=1661.7ms
+SELECT d0."id", d0."name", d0."movie_id", d0."movie_id" FROM "distributors" AS d0 WHERE (d0."movie_id" = $1) [1]
+ 
+07:43:39.961 [debug] QUERY OK source="characters" db=0.7ms queue=0.9ms idle=661.4ms
+SELECT c0."id", c0."name", c0."movie_id", c0."movie_id" FROM "characters" AS c0 WHERE (c0."movie_id" = $1) ORDER BY c0."movie_id" [1]
+ 
+07:43:39.962 [debug] QUERY OK source="actors" db=1.3ms queue=1.1ms idle=662.0ms
+SELECT a0."id", a0."name", m1."id" FROM "actors" AS a0 INNER JOIN "movies" AS m1 ON m1."id" = ANY($1) INNER JOIN "movies_actors" AS m2 ON m2."movie_id" = m1."id" WHERE (m2."actor_id" = a0."id") ORDER BY m1."id" [[1]]
+ 
+07:43:39.964 [debug] QUERY ERROR source="genre_types" db=0.0ms queue=3.6ms idle=662.1ms
+SELECT g0."id", g0."name", m1."id" FROM "genre_types" AS g0 INNER JOIN "movies" AS m1 ON m1."id" = ANY($1) INNER JOIN "movies_genre_types" AS m2 ON m2."movie_id" = m1."id" WHERE (m2."genre__type_id" = g0."id") ORDER BY m1."id" [[1]]
+ 
+07:43:39.964 [error] Task #PID<0.279.0> started from #PID<0.270.0> terminating
+** (Postgrex.Error) ERROR 42703 (undefined_column) column m2.genre__type_id does not exist
+
+    query: SELECT g0."id", g0."name", m1."id" FROM "genre_types" AS g0 INNER JOIN "movies" AS m1 ON m1."id" = ANY($1) INNER JOIN "movies_genre_types" AS m2 ON m2."movie_id" = m1."id" WHERE (m2."genre__type_id" = g0."id") ORDER BY m1."id"
+
+    hint: Perhaps you meant to reference the column "m2.genre_type_id".
+    (ecto_sql 3.5.4) lib/ecto/adapters/sql.ex:751: Ecto.Adapters.SQL.raise_sql_call_error/1
+    (ecto_sql 3.5.4) lib/ecto/adapters/sql.ex:684: Ecto.Adapters.SQL.execute/5
+    (ecto 3.5.8) lib/ecto/repo/queryable.ex:229: Ecto.Repo.Queryable.execute/4
+    (ecto 3.5.8) lib/ecto/repo/queryable.ex:17: Ecto.Repo.Queryable.all/3
+    (ecto 3.5.8) lib/ecto/repo/preloader.ex:229: Ecto.Repo.Preloader.fetch_query/8
+    (elixir 1.11.2) lib/task/supervised.ex:90: Task.Supervised.invoke_mfa/2
+    (elixir 1.11.2) lib/task/supervised.ex:35: Task.Supervised.reply/5
+    (stdlib 3.13) proc_lib.erl:226: :proc_lib.init_p_do_apply/3
+Function: &:erlang.apply/2
+    Args: [#Function<8.19906945/1 in Ecto.Repo.Preloader.maybe_pmap/3>, [#Function<18.19906945/1 in Ecto.Repo.Preloader.prepare_queries/6>]]
+** (EXIT from #PID<0.270.0>) shell process exited with reason: an exception was raised:
+    ** (Postgrex.Error) ERROR 42703 (undefined_column) column m2.genre__type_id does not exist
+
+    query: SELECT g0."id", g0."name", m1."id" FROM "genre_types" AS g0 INNER JOIN "movies" AS m1 ON m1."id" = ANY($1) INNER JOIN "movies_genre_types" AS m2 ON m2."movie_id" = m1."id" WHERE (m2."genre__type_id" = g0."id") ORDER BY m1."id"
+
+    hint: Perhaps you meant to reference the column "m2.genre_type_id".
+        (ecto_sql 3.5.4) lib/ecto/adapters/sql.ex:751: Ecto.Adapters.SQL.raise_sql_call_error/1
+        (ecto_sql 3.5.4) lib/ecto/adapters/sql.ex:684: Ecto.Adapters.SQL.execute/5
+        (ecto 3.5.8) lib/ecto/repo/queryable.ex:229: Ecto.Repo.Queryable.execute/4
+        (ecto 3.5.8) lib/ecto/repo/queryable.ex:17: Ecto.Repo.Queryable.all/3
+        (ecto 3.5.8) lib/ecto/repo/preloader.ex:229: Ecto.Repo.Preloader.fetch_query/8
+        (elixir 1.11.2) lib/task/supervised.ex:90: Task.Supervised.invoke_mfa/2
+        (elixir 1.11.2) lib/task/supervised.ex:35: Task.Supervised.reply/5
+        (stdlib 3.13) proc_lib.erl:226: :proc_lib.init_p_do_apply/3
+
+Interactive Elixir (1.11.2) - press Ctrl+C to exit (type h() ENTER for help)

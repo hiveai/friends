@@ -4,5 +4,6 @@ defmodule Friends.Genre_Type do
 
   schema "genre_types" do
     field :name, :string
+    many_to_many :movie, Friends.Movie, join_through: "movies_genre_types"
   end
 end
