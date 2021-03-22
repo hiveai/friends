@@ -1,6 +1,8 @@
 # Friends
 
-**TODO: Add description**
+This is an example based on Elixir School: https://elixirschool.com/en/lessons/ecto/associations/
+
+
 
 ## Installation
 
