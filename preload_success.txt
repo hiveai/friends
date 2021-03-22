@@ -1,0 +1,78 @@
+iex(1)> alias Friends.{Movie, Character, Repo, Resource, Resource_Type, Genre}
+[Friends.Movie, Friends.Character, Friends.Repo, Friends.Resource,
+ Friends.Resource_Type, Friends.Genre]
+iex(2)> movie = Repo.get(Movie, 1)                                            
+
+13:20:09.221 [debug] QUERY OK source="movies" db=0.7ms decode=2.4ms queue=0.9ms idle=1884.0ms
+SELECT m0."id", m0."title", m0."tagline" FROM "movies" AS m0 WHERE (m0."id" = $1) [1]
+%Friends.Movie{
+  __meta__: #Ecto.Schema.Metadata<:loaded, "movies">,
+  actors: #Ecto.Association.NotLoaded<association :actors is not loaded>,
+  characters: #Ecto.Association.NotLoaded<association :characters is not loaded>,
+  distributor: #Ecto.Association.NotLoaded<association :distributor is not loaded>,
+  genres: #Ecto.Association.NotLoaded<association :genres is not loaded>,
+  id: 1,
+  tagline: "Something about video games",
+  title: "Ready Player One"
+}
+iex(3)> genre = Repo.get(Genre, 1)
+
+13:20:43.768 [debug] QUERY OK source="genres" db=0.8ms queue=1.1ms idle=1436.4ms
+SELECT g0."id", g0."name" FROM "genres" AS g0 WHERE (g0."id" = $1) [1]
+%Friends.Genre{
+  __meta__: #Ecto.Schema.Metadata<:loaded, "genres">,
+  id: 1,
+  movie: #Ecto.Association.NotLoaded<association :movie is not loaded>,
+  name: "Horror"
+}
+iex(4)> movie = Repo.preload(movie, [:distributor, :characters, :actors, :genres])
+
+13:21:08.989 [debug] QUERY OK source="characters" db=0.3ms queue=0.6ms idle=1657.7ms
+SELECT c0."id", c0."name", c0."movie_id", c0."movie_id" FROM "characters" AS c0 WHERE (c0."movie_id" = $1) ORDER BY c0."movie_id" [1]
+ 
+13:21:08.990 [debug] QUERY OK source="distributors" db=0.8ms queue=1.0ms idle=1657.6ms
+SELECT d0."id", d0."name", d0."movie_id", d0."movie_id" FROM "distributors" AS d0 WHERE (d0."movie_id" = $1) [1]
+ 
+13:21:08.992 [debug] QUERY OK source="actors" db=1.4ms queue=1.3ms idle=1659.0ms
+SELECT a0."id", a0."name", m1."id" FROM "actors" AS a0 INNER JOIN "movies" AS m1 ON m1."id" = ANY($1) INNER JOIN "movies_actors" AS m2 ON m2."movie_id" = m1."id" WHERE (m2."actor_id" = a0."id") ORDER BY m1."id" [[1]]
+ 
+13:21:08.992 [debug] QUERY OK source="genres" db=1.7ms queue=1.5ms idle=1658.8ms
+SELECT g0."id", g0."name", m1."id" FROM "genres" AS g0 INNER JOIN "movies" AS m1 ON m1."id" = ANY($1) INNER JOIN "movies_genres" AS m2 ON m2."movie_id" = m1."id" WHERE (m2."genre_id" = g0."id") ORDER BY m1."id" [[1]]
+%Friends.Movie{
+  __meta__: #Ecto.Schema.Metadata<:loaded, "movies">,
+  actors: [
+    %Friends.Actor{
+      __meta__: #Ecto.Schema.Metadata<:loaded, "actors">,
+      id: 1,
+      movies: #Ecto.Association.NotLoaded<association :movies is not loaded>,
+      name: "Tyler Sheridan"
+    },
+    %Friends.Actor{
+      __meta__: #Ecto.Schema.Metadata<:loaded, "actors">,
+      id: 2,
+      movies: #Ecto.Association.NotLoaded<association :movies is not loaded>,
+      name: "Gary"
+    }
+  ],
+  characters: [
+    %Friends.Character{
+      __meta__: #Ecto.Schema.Metadata<:loaded, "characters">,
+      id: 1,
+      movie: #Ecto.Association.NotLoaded<association :movie is not loaded>,
+      movie_id: 1,
+      name: "Wade Watts"
+    }
+  ],
+  distributor: %Friends.Distributor{
+    __meta__: #Ecto.Schema.Metadata<:loaded, "distributors">,
+    id: 1,
+    movie: #Ecto.Association.NotLoaded<association :movie is not loaded>,
+    movie_id: 1,
+    name: "Netflix"
+  },
+  genres: [],
+  id: 1,
+  tagline: "Something about video games",
+  title: "Ready Player One"
+}
+iex(5)> 

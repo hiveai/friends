@@ -37,3 +37,11 @@ BEGIN;
 INSERT INTO "public"."movies_actors" VALUES (1, 1, 1);
 INSERT INTO "public"."movies_actors" VALUES (2, 1, 2);
 COMMIT;
+
+-- ----------------------------
+-- Records of genres
+-- ----------------------------
+BEGIN;
+INSERT INTO "public"."genres" VALUES (1, 'Horror');
+INSERT INTO "public"."genres" VALUES (2, 'Comedy');
+COMMIT;
