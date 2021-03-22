@@ -2,6 +2,7 @@
 
 **TODO: Add description**
 This is an example based on Elixir School: https://elixirschool.com/en/lessons/ecto/associations/
+This branch shows that using genre_types causes an error on preload
 ## Installation
 
 If [available in Hex](https://hex.pm/docs/publish), the package can be installed
